@@ -1,2 +1,3 @@
-# cs50project2
-Project 2: Flack (Slack clone with Flask and Javascript)
+# Project 2
+
+Web Programming with Python and JavaScript

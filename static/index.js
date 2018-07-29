@@ -323,7 +323,8 @@ Vue.component('chat-component', {
             </form>
             <div>
                 <ul>
-                    <li v-for="message in messages" :key="message.id"><b>{{ message.user }}:</b> {{ message.msg }}</li>
+                    <li v-if="messages.length == 0">No message yet</li>
+                    <li v-else v-for="message in messages" :key="message.id"><b>{{ message.user }}:</b> {{ message.msg }}</li>
                 </ul>
             </div>
         </div>

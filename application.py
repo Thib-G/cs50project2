@@ -55,9 +55,8 @@ def get_last_messages(data):
     channel = data["channel"]
     join_room(channel)
     if channel in [key for key in messages]:
-        emit('update all messages', messages[channel])
-    else:
-        emit('update all messages', [{ "id": 0, "user": "bot", "msg": f"No message yet in {channel}" }], room=channel)
+        emit('update all messages', messages[channel], room=channel)
+    
 
 @socketio.on("leave channel")
 def leave_channel(data):

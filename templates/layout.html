@@ -9,6 +9,9 @@
         mark {
             padding: 0;
         }
+        svg > rect.vote-bar {
+            transition: width 1s;
+        }
     </style>
     <title>Project 2: Flack app</title>
 </head>
@@ -29,6 +32,5 @@
     <script type="text/javascript" src="%% url_for('static', filename='libraries/socket.io.dev.js') %%"></script>
     <script type="text/javascript" src="%% url_for('static', filename='libraries/vue.js') %%"></script>
     <script type="text/javascript" src="%% url_for('static', filename='index.js') %%"></script>
-
 </body>
 </html>

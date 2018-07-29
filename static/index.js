@@ -210,7 +210,7 @@ Vue.component('channels-list-component', {
     data() {
         return {
             channels: [],
-            activeChannel: '',
+            activeChannel: localStorage.getItem('channel') ? localStorage.getItem('channel') : null,
             newChannel: '',
         };
     },
@@ -218,6 +218,7 @@ Vue.component('channels-list-component', {
         socket.on('update channels', (data) => {
             this.channels = data;
         });
+        this.$emit('input', this.activeChannel);
     },
     mounted() {
         socket.emit('get channels');
@@ -227,6 +228,7 @@ Vue.component('channels-list-component', {
             this.activeChannel = newVal;
         },
         activeChannel(newVal) {
+            localStorage.setItem('channel', newVal);
             this.$emit('input', newVal);
         },
     },

@@ -42,6 +42,7 @@ def add_channel(data):
     if channel in channels:
         return
     channels.append(channel)
+    messages[channel] = []
     emit("update channels", channels, broadcast=True)
 
 @socketio.on("delete channel")
@@ -55,8 +56,7 @@ def get_last_messages(data):
     channel = data["channel"]
     join_room(channel)
     if channel in [key for key in messages]:
-        emit('update all messages', messages[channel], room=channel)
-    
+        emit('update all messages', messages[channel])    
 
 @socketio.on("leave channel")
 def leave_channel(data):
@@ -70,15 +70,19 @@ def send_message(data):
     msg = data["message"]
     id = 0
     if channel in messages and len(messages[channel]) > 0:
+        # Increment id
         id = max([msg["id"] for msg in messages[channel]]) + 1
+        # Limit to last 100 messages
+        messages[channel] = messages[channel][-100:]
+    else:
+        messages[channel] = []
 
     message = {
         "id": id,
         "user": user,
         "msg": msg,
     }
-    if channel not in messages:
-        messages[channel] = []
+        
     messages[channel].append(message)
 
     emit("new message", message, room=channel)

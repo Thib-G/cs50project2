@@ -31,7 +31,7 @@ Vue.component('cs50-app-component', {
         <br />
         <div class="row">
             <div class="col">
-                <component :is="activeComp""></component>
+                <component :is="activeComp"></component>
             </div>
         </div>
     </div>

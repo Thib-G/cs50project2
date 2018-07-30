@@ -1,121 +1,8 @@
 const socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
 Vue.component('cs50-app-component', {
-    data() {
-        return {
-            comps: [
-                { name: 'Votes', tag: 'votes-component' },
-                { name: 'Flack', tag: 'flack-component' },
-            ],
-            activeComp: 'flack-component',
-        };
-    },
-    methods: {
-        changeComp(comp) {
-            this.activeComp = comp.tag;
-        },
-    },
     template: `
-    <div>
-        <div class="row">
-            <div class="col">
-                <ul class="nav nav-pills">
-                    <li class="nav-item" v-for="comp in comps" :key="comp.name">
-                        <a class="nav-link" :class="{ active: comp.tag === activeComp }" @click.prevent="changeComp(comp)" href>
-                            {{ comp.name }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <br />
-        <div class="row">
-            <div class="col">
-                <component :is="activeComp"></component>
-            </div>
-        </div>
-    </div>
-    `,
-});
-
-Vue.component('bar-component', {
-    props: ['max-width', 'height', 'val', 'max-val', 'color'],
-    computed: {
-        width() {
-            if (this.maxVal === 0) {
-                return 0;
-            }
-            return Math.round(this.val / this.maxVal * this.maxWidth);
-        },
-    },
-    template: `
-        <svg :width="maxWidth" :height="height">
-            <rect class="vote-bar" x="0" y="0" :height="height" :width="width" :style="{ fill: color }">
-            </rect>
-        </svg>
-    `,
-});
-
-Vue.component('votes-component', {
-    data() {
-        return {
-            votes: {
-                yes: 0,
-                no: 0,
-                maybe: 0,
-            },
-        };
-    },
-    created() {
-        socket.on('vote totals', (data) => {
-            this.votes = data;
-        });
-    },
-    mounted() {
-        socket.emit('init votes');
-    },
-    computed: {
-        maxVal() {
-            return Math.max(...Object.values(this.votes));
-        },
-    },
-    methods: {
-        addVote(key) {
-            socket.emit('submit vote', { selection: key });
-        },
-    },
-    template: `
-        <div>
-            <ul class="list-group">
-                <li v-for="(v, k) in votes" :key="k" class="list-group-item">
-                    <bar-component :max-width="300" :height="20" :val="v" :max-val="maxVal" color="steelblue"></bar-component>
-                    {{ k }}: {{ v }}
-                </li>
-            </ul>
-            <br />
-            <div>Click to vote:</div>
-            <div class="btn-group">
-                </template>
-                <template v-for="(v, k) in votes">
-                    <btn-vote-component :key="k" :vote="k" @onvote="addVote">
-                    </btn-vote-component>
-                </template>
-            </div>
-        </div>
-    `,
-});
-
-Vue.component('btn-vote-component', {
-    props: ['vote'],
-    methods: {
-        sendVote() {
-            this.$emit('onvote', this.vote);
-        },
-    },
-    template: `
-        <button class="btn btn-primary" @click="sendVote">
-            {{ vote }}
-        </button>
+        <flack-component></flack-component>
     `,
 });
 
@@ -127,12 +14,11 @@ Vue.component('flack-component', {
         };
     },
     template: `
-    <div>
-        <div class="row">
+    <div class="h-100">
+        <div class="row mb-5">
             <div class="col">
-                <p v-if="user">User: {{ user.name }}</p>
-                <p v-if="activeChannel">Channel: {{ activeChannel }}</p>
-                <user-component v-model="user"></user-component>
+                <span v-if="user">User: {{ user.name }},</span>
+                <span v-if="activeChannel">Channel: {{ activeChannel }}</span>
             </div>
         </div>
         <div class="row">
@@ -145,6 +31,7 @@ Vue.component('flack-component', {
                 </div>
                 <div v-else>
                     Please login and choose a channel to chat.
+                    <user-component v-model="user"></user-component>
                 </div>
             </div>
         </div>
@@ -295,6 +182,7 @@ Vue.component('chat-component', {
     },
     watch: {
         channel(newVal, oldVal) {
+            this.messages = [];
             socket.emit('leave channel', { channel: oldVal });
             socket.emit('get all messages', { channel: newVal });
         },
@@ -312,6 +200,12 @@ Vue.component('chat-component', {
     template: `
         <div>
             <h3>{{ channel }}</h3>
+            <div class="chat-messages">
+                <ul>
+                    <li v-if="messages.length == 0">No message yet</li>
+                    <li v-else v-for="message in messages" :key="message.id"><b>{{ message.user }}:</b> {{ message.msg }}</li>
+                </ul>
+            </div>
             <form @submit.prevent="sendMessage(newMessage)">
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
@@ -323,19 +217,10 @@ Vue.component('chat-component', {
                     </div>
                 </div>
             </form>
-            <div>
-                <ul>
-                    <li v-if="messages.length == 0">No message yet</li>
-                    <li v-else v-for="message in messages" :key="message.id"><b>{{ message.user }}:</b> {{ message.msg }}</li>
-                </ul>
-            </div>
         </div>
     `,
 });
 
 const app = new Vue({
     el: '#app',
-    data: {
-        message: 'Hello Vue!',
-    },
 });
